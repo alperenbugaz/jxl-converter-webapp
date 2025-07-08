@@ -1,12 +1,10 @@
-﻿/* src/components/ImageCompressor.css */
-
-/* :root ve body stilleri aynı kalabilir */
+﻿
 :root {
-    --brand-primary: #6D28D9; /* A nice purple */
+    --brand-primary: #6D28D9;
     --brand-secondary: #EDE9FE;
-    --text-primary-on-light: #1F2937; /* Açık arkaplan için metin rengi */
+    --text-primary-on-light: #1F2937; 
     --text-secondary-on-light: #6B7280;
-    --text-primary-on-dark: #FFFFFF; /* Koyu arkaplan için metin rengi */
+    --text-primary-on-dark: #FFFFFF; 
     --text-secondary-on-dark: #E0E0E0;
     --border-color: #E5E7EB;
     --success-color: #10B981;
@@ -28,14 +26,14 @@
     justify-content: center;
     overflow: hidden;
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    color: var(--text-primary-on-dark); /* Kart içindeki varsayılan metin rengi */
+    color: var(--text-primary-on-dark); 
 }
 
 .upload-view {
     padding: 4rem;
     text-align: center;
     width: 100%;
-    border: 2px dashed rgba(255, 255, 255, 0.2); /* Sınır rengini daha görünür yapalım */
+    border: 2px dashed rgba(255, 255, 255, 0.2); 
     margin: 2rem;
     border-radius: 16px;
     transition: all 0.2s ease-in-out;
@@ -54,11 +52,11 @@
 .upload-view h2 {
     margin: 0;
     font-size: 1.5rem;
-    color: var(--text-primary-on-dark); /* DÜZELTME */
+    color: var(--text-primary-on-dark); 
 }
 
 .upload-view p {
-    color: var(--text-secondary-on-dark); /* DÜZELTME */
+    color: var(--text-secondary-on-dark);
 }
 
 .upload-button {
@@ -86,7 +84,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.15); /* Arkaplanı daha uyumlu yapalım */
+    background: rgba(0, 0, 0, 0.15); 
     padding: 2rem;
     position: relative;
 }
@@ -114,12 +112,12 @@
 .file-info h4 {
     margin: 0;
     font-size: 1.1rem;
-    color: var(--text-primary-on-dark); /* DÜZELTME */
+    color: var(--text-primary-on-dark); 
 }
 
 .file-info p {
     margin: 0;
-    color: var(--text-secondary-on-dark); /* DÜZELTME */
+    color: var(--text-secondary-on-dark); 
 }
 
 .setting-group {
@@ -129,7 +127,7 @@
 .setting-group label {
     display: block;
     font-weight: 500;
-    color: var(--text-primary-on-dark); /* DÜZELTME */
+    color: var(--text-primary-on-dark);
     margin-bottom: 0.5rem;
 }
 
@@ -148,7 +146,7 @@
     border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
-    color: var(--text-secondary-on-dark); /* DÜZELTME */
+    color: var(--text-secondary-on-dark);
     transition: all 0.2s ease-in-out;
     display: flex;
     justify-content: center;
@@ -158,7 +156,7 @@
 
 .segmented-control button.active {
     background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary-on-dark); /* DÜZELTME */
+    color: var(--text-primary-on-dark); 
 }
 
 .action-button {
@@ -179,7 +177,7 @@
     padding: 12px;
     font-size: 1rem;
     font-weight: 500;
-    color: var(--text-secondary-on-dark); /* DÜZELTME */
+    color: var(--text-secondary-on-dark); 
     background: transparent;
     border: none;
     cursor: pointer;
@@ -197,7 +195,7 @@
 .result-view h3 {
     font-size: 1.8rem;
     margin: 0;
-    color: var(--text-primary-on-dark); /* DÜZELTME */
+    color: var(--text-primary-on-dark);
 }
 
 .result-summary {
@@ -211,23 +209,23 @@
 
 .size-item span {
     font-size: 0.8rem;
-    color: var(--text-secondary-on-dark); /* DÜZELTME */
+    color: var(--text-secondary-on-dark);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .size-item strong {
     font-size: 1.5rem;
-    color: var(--text-primary-on-dark); /* DÜZELTME */
+    color: var(--text-primary-on-dark); 
 }
 
 .size-item.new-size strong {
-    color: #A78BFA; /* Mor rengin daha açık bir tonu */
+    color: #A78BFA; 
 }
 
 .arrow-icon {
     margin: 0.5rem 0;
-    color: var(--text-secondary-on-dark); /* DÜZELTME */
+    color: var(--text-secondary-on-dark); 
 }
 
 .reduction-badge {
@@ -245,14 +243,13 @@
     text-align: center;
 }
 
-/* --- Spinner --- */
 .spinner-overlay {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(20, 20, 40, 0.7); /* DÜZELTME */
+    background: rgba(20, 20, 40, 0.7); 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -275,4 +272,82 @@
     100% {
         transform: rotate(360deg);
     }
+}
+
+.quality-label-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem; 
+}
+
+.quality-label-container label {
+    margin-bottom: 0; 
+}
+
+.quality-label-container span {
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 6px;
+    color: var(--text-primary-on-dark);
+}
+
+.quality-slider-container {
+    width: 100%;
+    padding: 8px 0;
+}
+
+.quality-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    background-image: linear-gradient(
+        to right,
+        var(--brand-primary),
+        var(--brand-primary) var(--value, 0%),
+        rgba(0, 0, 0, 0.3) var(--value, 0%)
+    );
+    transition: background 0.2s ease;
+}
+
+.quality-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    border: 3px solid var(--brand-primary);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.quality-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+.quality-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    border: 3px solid var(--brand-primary);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.quality-slider::-moz-range-thumb:hover {
+    transform: scale(1.1);
+}
+
+.quality-slider::-moz-range-track {
+    background: transparent;
+    border-radius: 4px;
 }

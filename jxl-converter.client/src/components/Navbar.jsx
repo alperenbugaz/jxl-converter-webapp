@@ -1,6 +1,10 @@
+// src/components/Navbar.jsx dosyasını bu şekilde güncelleyin:
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import './Navbar.css';
+// GitHubIcon'u import edin
+import { GitHubIcon } from './Icons'; 
 
 const LogoIcon = () => (
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '12px' }}>
@@ -24,7 +28,7 @@ const navbarVariants = {
 const menuVariants = {
     visible: {
         transition: {
-            staggerChildren: 0.1, 
+            staggerChildren: 0.1,
         },
     },
 };
@@ -54,13 +58,15 @@ function Navbar() {
                     variants={menuVariants}
                 >
                     <motion.li className="nav-item" variants={menuItemVariants}>
-                        <a href="https://jpegxl.info/why-jxl.html" target="_blank" rel="noopener noreferrer" className="nav-links">
+                        {/* Why JXL linkini güncelleyin */}
+                        <a href="https://jpegxl.info/" target="_blank" rel="noopener noreferrer" className="nav-links">
                             Why JXL?
                         </a>
                     </motion.li>
                     <motion.li className="nav-item" variants={menuItemVariants}>
-                        <a href="https://github.com/your-github-username/jxl-converter" target="_blank" rel="noopener noreferrer" className="nav-links">
-                            GitHub
+                        {/* GitHub linkini ikon ile değiştirin */}
+                        <a href="https://github.com/alperenbugaz/jxl-converter-webapp" target="_blank" rel="noopener noreferrer" className="nav-links nav-icon-link">
+                            <GitHubIcon />
                         </a>
                     </motion.li>
                 </motion.ul>

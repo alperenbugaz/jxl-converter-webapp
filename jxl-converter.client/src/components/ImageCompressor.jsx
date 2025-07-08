@@ -125,8 +125,23 @@ function ImageCompressor() {
                                 </div>
                                 {!lossless && (
                                     <div className="setting-group">
-                                        <label htmlFor="distance">Quality Level</label>
-                                        <input type="range" id="distance" min="0.1" max="3.0" step="0.1" value={distance} onChange={(e) => setDistance(parseFloat(e.target.value))} />
+                                        <div className="quality-label-container">
+                                            <label htmlFor="distance">Quality Level</label>
+                                            <span>{distance.toFixed(1)}</span>
+                                        </div>
+                                        <div className="quality-slider-container">
+                                            <input
+                                                type="range"
+                                                id="distance"
+                                                min="0.1"
+                                                max="3.0"
+                                                step="0.1"
+                                                value={distance}
+                                                onChange={(e) => setDistance(parseFloat(e.target.value))}
+                                                className="quality-slider"
+                                                style={{ '--value': `${((distance - 0.1) / (3.0 - 0.1)) * 100}%` }}
+                                            />
+                                        </div>
                                     </div>
                                 )}
                                 <div className="setting-group">
