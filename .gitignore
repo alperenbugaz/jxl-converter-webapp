@@ -1,0 +1,17 @@
+**/[Bb]in/
+**/[Oo]bj/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+ClientApp/node_modules/
+ClientApp/build/
+ClientApp/.pnp
+ClientApp/.pnp.js
+ClientApp/coverage
+ClientApp/.DS_Store
+ClientApp/npm-debug.log*
+ClientApp/yarn-debug.log*
+ClientApp/yarn-error.log*

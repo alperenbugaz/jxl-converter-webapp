@@ -1,0 +1,278 @@
+﻿/* src/components/ImageCompressor.css */
+
+/* :root ve body stilleri aynı kalabilir */
+:root {
+    --brand-primary: #6D28D9; /* A nice purple */
+    --brand-secondary: #EDE9FE;
+    --text-primary-on-light: #1F2937; /* Açık arkaplan için metin rengi */
+    --text-secondary-on-light: #6B7280;
+    --text-primary-on-dark: #FFFFFF; /* Koyu arkaplan için metin rengi */
+    --text-secondary-on-dark: #E0E0E0;
+    --border-color: #E5E7EB;
+    --success-color: #10B981;
+    --success-background: #D1FAE5;
+}
+
+.card {
+    max-width: 800px;
+    min-height: 500px;
+    margin: 2rem 0;
+    background: rgba(36, 36, 62, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    color: var(--text-primary-on-dark); /* Kart içindeki varsayılan metin rengi */
+}
+
+.upload-view {
+    padding: 4rem;
+    text-align: center;
+    width: 100%;
+    border: 2px dashed rgba(255, 255, 255, 0.2); /* Sınır rengini daha görünür yapalım */
+    margin: 2rem;
+    border-radius: 16px;
+    transition: all 0.2s ease-in-out;
+}
+
+.upload-view:hover {
+    border-color: var(--brand-primary);
+    background-color: rgba(109, 40, 217, 0.1);
+}
+
+.upload-icon-container {
+    color: var(--brand-primary);
+    margin-bottom: 1rem;
+}
+
+.upload-view h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-primary-on-dark); /* DÜZELTME */
+}
+
+.upload-view p {
+    color: var(--text-secondary-on-dark); /* DÜZELTME */
+}
+
+.upload-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--brand-primary);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.upload-view input[type="file"] {
+    display: none;
+}
+
+.main-view {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.preview-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.15); /* Arkaplanı daha uyumlu yapalım */
+    padding: 2rem;
+    position: relative;
+}
+
+.preview-panel img {
+    max-width: 100%;
+    max-height: 460px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.settings-panel {
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.file-info {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.file-info h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary-on-dark); /* DÜZELTME */
+}
+
+.file-info p {
+    margin: 0;
+    color: var(--text-secondary-on-dark); /* DÜZELTME */
+}
+
+.setting-group {
+    margin-bottom: 1.5rem;
+}
+
+.setting-group label {
+    display: block;
+    font-weight: 500;
+    color: var(--text-primary-on-dark); /* DÜZELTME */
+    margin-bottom: 0.5rem;
+}
+
+.segmented-control {
+    display: flex;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.segmented-control button {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-secondary-on-dark); /* DÜZELTME */
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.segmented-control button.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary-on-dark); /* DÜZELTME */
+}
+
+.action-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: var(--brand-primary);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: auto;
+}
+
+.secondary-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-secondary-on-dark); /* DÜZELTME */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+.result-view {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+}
+
+.result-view h3 {
+    font-size: 1.8rem;
+    margin: 0;
+    color: var(--text-primary-on-dark); /* DÜZELTME */
+}
+
+.result-summary {
+    margin: 2rem 0;
+}
+
+.size-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.size-item span {
+    font-size: 0.8rem;
+    color: var(--text-secondary-on-dark); /* DÜZELTME */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.size-item strong {
+    font-size: 1.5rem;
+    color: var(--text-primary-on-dark); /* DÜZELTME */
+}
+
+.size-item.new-size strong {
+    color: #A78BFA; /* Mor rengin daha açık bir tonu */
+}
+
+.arrow-icon {
+    margin: 0.5rem 0;
+    color: var(--text-secondary-on-dark); /* DÜZELTME */
+}
+
+.reduction-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: var(--success-background);
+    color: var(--success-color);
+    font-weight: 600;
+    border-radius: 999px;
+    margin-bottom: 2rem;
+}
+
+.download-button {
+    text-decoration: none;
+    text-align: center;
+}
+
+/* --- Spinner --- */
+.spinner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(20, 20, 40, 0.7); /* DÜZELTME */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.spinner {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 5px solid rgba(255, 255, 255, 0.2);
+    border-bottom-color: var(--brand-primary);
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
