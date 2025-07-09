@@ -1,38 +1,54 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS builder
 
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    libbrotli-dev \
+    libgif-dev \
+    libjpeg62-turbo-dev \
+    libopenexr-dev \
+    libpng-dev \
+    libwebp-dev \
+    pkg-config \
+    ffmpeg
 
+WORKDIR /
+RUN git clone https://github.com/libjxl/libjxl.git --recursive
+WORKDIR /libjxl
+RUN mkdir build && cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF && \
+    cmake --build . -- -j$(nproc) && \
+    cmake --build . --target install
 
-# This stage is used to build the service project
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS with-node
-RUN apt-get update
-RUN apt-get install curl
-RUN curl -sL https://deb.nodesource.com/setup_20.x | bash
-RUN apt-get -y install nodejs
-
-
-FROM with-node AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["jxl-converter.Server/jxl-converter.Server.csproj", "jxl-converter.Server/"]
-COPY ["jxl-converter.client/jxl-converter.client.esproj", "jxl-converter.client/"]
-RUN dotnet restore "./jxl-converter.Server/jxl-converter.Server.csproj"
-COPY . .
-WORKDIR "/src/jxl-converter.Server"
-RUN dotnet build "./jxl-converter.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet restore "jxl-converter.Server/jxl-converter.Server.csproj"
+COPY ["jxl-converter.Server/", "jxl-converter.Server/"]
+RUN dotnet publish "jxl-converter.Server/jxl-converter.Server.csproj" -c Release -o /app/publish
 
-# This stage is used to publish the service project to be copied to the final stage
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./jxl-converter.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libbrotli1 \
+    libgif7 \
+    libjpeg62-turbo \
+    libopenexr-3-1-30 \
+    libpng16-16 \
+    libwebp7 \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /usr/local/bin/cjxl /usr/local/bin/
+COPY --from=builder /usr/local/bin/djxl /usr/local/bin/
+COPY --from=builder /usr/local/lib/libjxl* /usr/local/lib/
+RUN ldconfig
+
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=builder /app/publish .
+
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
+
 ENTRYPOINT ["dotnet", "jxl-converter.Server.dll"]

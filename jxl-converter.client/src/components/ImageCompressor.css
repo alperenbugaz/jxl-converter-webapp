@@ -351,3 +351,99 @@
     background: transparent;
     border-radius: 4px;
 }
+/* --- Gelişmiş Ayarlar Stilleri --- */
+.advanced-settings {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+.advanced-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 4px;
+    background: none;
+    border: none;
+    color: var(--text-secondary-on-dark);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.advanced-toggle:hover {
+    color: var(--text-primary-on-dark);
+}
+
+.advanced-toggle .chevron {
+    margin-left: auto;
+    transition: transform 0.3s ease;
+}
+
+.advanced-toggle .chevron.open {
+    transform: rotate(180deg);
+}
+
+.advanced-options {
+    overflow: hidden;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.setting-group-checkbox {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.setting-group-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 12px;
+    accent-color: var(--brand-primary);
+    cursor: pointer;
+}
+
+.setting-group-checkbox label {
+    margin: 0;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.dropdown {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: var(--text-primary-on-dark);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.error-text {
+    color: #fca5a5; 
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.effort-label-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.effort-label-container label {
+    margin-bottom: 0;
+}
+
+.effort-label-container span {
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 6px;
+    color: var(--text-primary-on-dark);
+}

@@ -1,0 +1,8 @@
+**/.dockerignore
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/Debug
+**/Release
+**/net8.0
