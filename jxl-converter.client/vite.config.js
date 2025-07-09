@@ -33,9 +33,7 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
     }
 }
 
-const target = 'http://localhost:8081';
-
-// https://vitejs.dev/config/
+const target = 'https://127.0.0.1:7001';
 export default defineConfig({
     plugins: [plugin()],
     resolve: {
@@ -46,9 +44,9 @@ export default defineConfig({
     server: {
         proxy: {
             '^/api': {
-
                 target: target,
-                secure: false
+                secure: false,
+                changeOrigin: true
             }
         },
         port: parseInt(env.DEV_SERVER_PORT || '50639'),

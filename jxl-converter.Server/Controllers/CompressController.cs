@@ -25,7 +25,6 @@ namespace jxl_converter.Server.Controllers
             if (request.File == null || request.File.Length == 0)
                 return BadRequest(new { message = "No file uploaded." });
 
-            // Docker konteyneri içinde çalışacak geçici dosya yolları
             var tempInputPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var tempOutputPath = Path.ChangeExtension(tempInputPath, ".jxl");
 
@@ -39,21 +38,24 @@ namespace jxl_converter.Server.Controllers
                 var arguments = BuildArguments(request, tempInputPath, tempOutputPath);
                 _logger.LogInformation("Executing cjxl with arguments: {args}", arguments);
 
-                // --- DEĞİŞİKLİK BURADA ---
-                // Artık cjxl'in yolunu belirtmiyoruz. Dockerfile onu sisteme kurduğu için
-                // doğrudan adıyla çağırabiliyoruz.
+
                 using var process = new Process
                 {
                     StartInfo = new ProcessStartInfo
                     {
-                        FileName = "cjxl",
+                        FileName = "/usr/local/bin/cjxl",
                         Arguments = arguments,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
                         UseShellExecute = false,
-                        CreateNoWindow = true
+                        CreateNoWindow = true,
+                        Environment =
+        {
+            ["LD_LIBRARY_PATH"] = "/usr/local/lib"
+        }
                     }
                 };
+
 
                 process.Start();
                 string error = await process.StandardError.ReadToEndAsync();

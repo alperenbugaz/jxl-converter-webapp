@@ -10,13 +10,10 @@ function ImageCompressor() {
     const [error, setError] = useState(null);
     const [result, setResult] = useState(null);
 
-    // --- Sıkıştırma Ayarları ---
-    // DEĞİŞİKLİK: 'distance' state'ini 'quality' olarak yeniden adlandırdık ve aralığını güncelledik.
-    const [quality, setQuality] = useState(90); // Varsayılan kalite %90 olsun
+    const [quality, setQuality] = useState(90);
     const [effort, setEffort] = useState(7);
     const [lossless, setLossless] = useState(false);
 
-    // --- Gelişmiş Ayarlar ---
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [progressive, setProgressive] = useState(true);
     const [jpegReconstruction, setJpegReconstruction] = useState(true);
@@ -32,7 +29,7 @@ function ImageCompressor() {
         setError(null);
         setShowAdvanced(false);
         setLossless(false);
-        setQuality(90); // State'i sıfırla
+        setQuality(90);
         setEffort(7);
         setProgressive(true);
         setJpegReconstruction(true);
@@ -64,7 +61,6 @@ function ImageCompressor() {
 
         const formData = new FormData();
         formData.append('File', selectedFile);
-        // DEĞİŞİKLİK: Backend'e 'distance' yerine 'quality' gönderiyoruz.
         formData.append('Quality', quality);
         formData.append('Effort', effort);
         formData.append('Lossless', lossless);
@@ -129,7 +125,7 @@ function ImageCompressor() {
                                     <h4>{selectedFile?.name}</h4>
                                     <p>{(selectedFile?.size / 1024).toFixed(1)} KB</p>
                                 </div>
-                                
+
                                 <div className="setting-group">
                                     <label>Compression Type</label>
                                     <div className="segmented-control">
@@ -139,30 +135,30 @@ function ImageCompressor() {
                                 </div>
 
                                 <AnimatePresence>
-                                {!lossless && (
-                                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}>
-                                        <div className="setting-group">
-                                            {/* DEĞİŞİKLİK: Quality kaydırıcısını güncelledik */}
-                                            <div className="quality-label-container">
-                                                <label htmlFor="quality">Quality</label>
-                                                <span>{quality}%</span>
+                                    {!lossless && (
+                                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}>
+                                            <div className="setting-group">
+                                                {/* DEĞİŞİKLİK: Quality kaydırıcısını güncelledik */}
+                                                <div className="quality-label-container">
+                                                    <label htmlFor="quality">Quality</label>
+                                                    <span>{quality}%</span>
+                                                </div>
+                                                <div className="quality-slider-container">
+                                                    <input
+                                                        type="range"
+                                                        id="quality"
+                                                        min="0"
+                                                        max="100"
+                                                        step="1"
+                                                        value={quality}
+                                                        onChange={(e) => setQuality(parseInt(e.target.value))}
+                                                        className="quality-slider"
+                                                        style={{ '--value': `${quality}%` }}
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="quality-slider-container">
-                                                <input
-                                                    type="range"
-                                                    id="quality"
-                                                    min="0"
-                                                    max="100"
-                                                    step="1"
-                                                    value={quality}
-                                                    onChange={(e) => setQuality(parseInt(e.target.value))}
-                                                    className="quality-slider"
-                                                    style={{ '--value': `${quality}%` }}
-                                                />
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                )}
+                                        </motion.div>
+                                    )}
                                 </AnimatePresence>
 
                                 <div className="advanced-settings">
@@ -180,7 +176,7 @@ function ImageCompressor() {
                                                         <span>{effort}</span>
                                                     </div>
                                                     <div className="quality-slider-container">
-                                                        <input type="range" id="effort" min="1" max="9" step="1" value={effort} onChange={(e) => setEffort(parseInt(e.target.value))} className="quality-slider" style={{ '--value': `${((effort - 1) / (9 - 1)) * 100}%` }}/>
+                                                        <input type="range" id="effort" min="1" max="9" step="1" value={effort} onChange={(e) => setEffort(parseInt(e.target.value))} className="quality-slider" style={{ '--value': `${((effort - 1) / (9 - 1)) * 100}%` }} />
                                                     </div>
                                                 </div>
                                                 <div className="setting-group-checkbox">
@@ -214,7 +210,7 @@ function ImageCompressor() {
                             </>
                         )}
                         {step === 'result' && result && (
-                             <div className="result-view">
+                            <div className="result-view">
                                 <h3>Success!</h3>
                                 <p>Compression complete.</p>
                                 <div className="result-summary">

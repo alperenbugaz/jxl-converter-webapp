@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+    jxl-server: 
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+        ports:
+
+            - "7000:80"
+            - "7001:443"
+        volumes:
+            - ~/.aspnet/https:/https:ro

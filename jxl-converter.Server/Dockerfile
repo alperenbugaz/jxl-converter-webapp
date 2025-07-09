@@ -1,6 +1,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS builder
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates curl gnupg && \
+    mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+    nodejs \
     build-essential \
     cmake \
     git \
@@ -11,7 +18,8 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libwebp-dev \
     pkg-config \
-    ffmpeg
+    ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /
 RUN git clone https://github.com/libjxl/libjxl.git --recursive
@@ -22,9 +30,7 @@ RUN mkdir build && cd build && \
     cmake --build . --target install
 
 WORKDIR /src
-COPY ["jxl-converter.Server/jxl-converter.Server.csproj", "jxl-converter.Server/"]
-RUN dotnet restore "jxl-converter.Server/jxl-converter.Server.csproj"
-COPY ["jxl-converter.Server/", "jxl-converter.Server/"]
+COPY . .
 RUN dotnet publish "jxl-converter.Server/jxl-converter.Server.csproj" -c Release -o /app/publish
 
 
@@ -37,18 +43,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libopenexr-3-1-30 \
     libpng16-16 \
     libwebp7 \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /usr/local/bin/cjxl /usr/local/bin/
-COPY --from=builder /usr/local/bin/djxl /usr/local/bin/
-COPY --from=builder /usr/local/lib/libjxl* /usr/local/lib/
-RUN ldconfig
+    ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY --from=builder /app/publish .
+COPY --from=builder /app/publish . 
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
+COPY --from=builder /usr/local/lib/ /usr/local/lib/
+
+RUN echo "/usr/local/lib" > /etc/ld.so.conf.d/libjxl.conf && ldconfig
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
-
 ENTRYPOINT ["dotnet", "jxl-converter.Server.dll"]
