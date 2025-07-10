@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './ImageCompressor.css';
-import { UploadIcon, TurtleIcon, RabbitIcon, ArrowDownIcon, SettingsIcon, ChevronDownIcon } from './Icons';
+import { UploadIcon, ArrowDownIcon, SettingsIcon, ChevronDownIcon } from './Icons';
 
 function ImageCompressor() {
     const [step, setStep] = useState('upload');
@@ -9,6 +9,9 @@ function ImageCompressor() {
     const [previewUrl, setPreviewUrl] = useState(null);
     const [error, setError] = useState(null);
     const [result, setResult] = useState(null);
+    const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+    const [previewProgress, setPreviewProgress] = useState(0);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     const [quality, setQuality] = useState(90);
     const [effort, setEffort] = useState(7);
@@ -17,7 +20,6 @@ function ImageCompressor() {
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [progressive, setProgressive] = useState(true);
     const [jpegReconstruction, setJpegReconstruction] = useState(true);
-    const [colorTransform, setColorTransform] = useState(0);
 
     const isJpg = selectedFile?.type === 'image/jpeg';
 
@@ -33,17 +35,85 @@ function ImageCompressor() {
         setEffort(7);
         setProgressive(true);
         setJpegReconstruction(true);
-        setColorTransform(0);
+        setIsPreviewLoading(false);
+        setPreviewProgress(0);
+        setUploadProgress(0);
     }, []);
 
     const handleFileSelect = useCallback((file) => {
-        if (file && file.type.startsWith('image/')) {
-            setSelectedFile(file);
-            setError(null);
-            setStep('configuring');
-        } else {
+        if (!file || !file.type.startsWith('image/')) {
             setError('Please select a valid image file.');
+            return;
         }
+
+        setSelectedFile(file);
+        setError(null);
+        setStep('configuring');
+        setIsPreviewLoading(true);
+        setPreviewProgress(0);
+        setPreviewUrl(null);
+
+        const isJpegFile = file.type === 'image/jpeg';
+        if (isJpegFile) {
+            setLossless(true);
+            setJpegReconstruction(true);
+        } else {
+            setLossless(false);
+        }
+
+        const downscaleAndSetPreview = async (arrayBuffer) => {
+            try {
+                const blob = new Blob([arrayBuffer], { type: file.type });
+                const imageBitmap = await createImageBitmap(blob);
+
+                let { width, height } = imageBitmap;
+                const maxDimension = 800;
+
+                if (width > maxDimension || height > maxDimension) {
+                    if (width > height) {
+                        height = Math.round((height * maxDimension) / width);
+                        width = maxDimension;
+                    } else {
+                        width = Math.round((width * maxDimension) / height);
+                        height = maxDimension;
+                    }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(imageBitmap, 0, 0, width, height);
+                imageBitmap.close();
+
+                const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                setPreviewUrl(resizedDataUrl);
+            } catch (e) {
+                setError('Could not process the image for preview.');
+            } finally {
+                setIsPreviewLoading(false);
+            }
+        };
+
+        const reader = new FileReader();
+
+        reader.onprogress = (event) => {
+            if (event.lengthComputable) {
+                const percent = Math.round((event.loaded / event.total) * 100);
+                setPreviewProgress(percent);
+            }
+        };
+
+        reader.onload = () => {
+            downscaleAndSetPreview(reader.result);
+        };
+
+        reader.onerror = () => {
+            setError('Could not read the file for preview.');
+            setIsPreviewLoading(false);
+        };
+
+        reader.readAsArrayBuffer(file);
     }, []);
 
     const handleFileChange = (e) => handleFileSelect(e.target.files[0]);
@@ -53,11 +123,13 @@ function ImageCompressor() {
         handleFileSelect(e.dataTransfer.files[0]);
     };
 
-    const handleCompress = async () => {
+    const handleCompress = () => {
         if (!selectedFile) return;
+
         setStep('processing');
         setError(null);
         setResult(null);
+        setUploadProgress(0);
 
         const formData = new FormData();
         formData.append('File', selectedFile);
@@ -65,35 +137,52 @@ function ImageCompressor() {
         formData.append('Effort', effort);
         formData.append('Lossless', lossless);
         formData.append('Progressive', progressive);
-        if (isJpg) {
+        if (isJpg && lossless) {
             formData.append('JpegReconstruction', jpegReconstruction);
         }
-        formData.append('ColorTransform', colorTransform);
 
-        try {
-            const response = await fetch('/api/compress', { method: 'POST', body: formData });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'An unknown server error occurred.');
+        const xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+                const percentComplete = Math.round((event.loaded / event.total) * 100);
+                setUploadProgress(percentComplete);
             }
-            const resultData = await response.json();
-            setResult(resultData);
-            setStep('result');
-        } catch (err) {
-            setError(err.message);
+        });
+
+        xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                const resultData = JSON.parse(xhr.responseText);
+                setResult(resultData);
+                setStep('result');
+            } else {
+                try {
+                    const errorData = JSON.parse(xhr.responseText);
+                    setError(errorData.message || 'An unknown server error occurred.');
+                } catch (e) {
+                    setError(`Server error: ${xhr.status}`);
+                }
+                setStep('configuring');
+            }
+        });
+
+        xhr.addEventListener('error', () => {
+            setError('Upload failed. Check your network connection.');
             setStep('configuring');
-        }
+        });
+
+        xhr.open('POST', '/api/compress', true);
+        xhr.send(formData);
     };
 
-    useEffect(() => {
-        if (!selectedFile) {
-            setPreviewUrl(null);
-            return;
-        }
-        const objectUrl = URL.createObjectURL(selectedFile);
-        setPreviewUrl(objectUrl);
-        return () => URL.revokeObjectURL(objectUrl);
-    }, [selectedFile]);
+    const renderSpinner = (text) => (
+        <div className="spinner-overlay">
+            <div className="spinner-container">
+                <div className="spinner"></div>
+                <span>{text}</span>
+            </div>
+        </div>
+    );
 
     return (
         <motion.div
@@ -115,52 +204,41 @@ function ImageCompressor() {
             {(step === 'configuring' || step === 'processing' || step === 'result') && (
                 <div className="main-view">
                     <div className="preview-panel">
-                        <img src={previewUrl} alt="Preview" />
-                        {step === 'processing' && <div className="spinner-overlay"><div className="spinner"></div></div>}
+                        {isPreviewLoading && renderSpinner(previewProgress > 0 ? `Loading Preview: ${previewProgress}%` : 'Loading Preview...')}
+                        {!isPreviewLoading && previewUrl && <img src={previewUrl} alt="Preview" />}
+                        {step === 'processing' && renderSpinner(uploadProgress < 100 ? `Uploading: ${uploadProgress}%` : 'Processing...')}
                     </div>
+
                     <div className="settings-panel">
                         {step === 'configuring' && (
                             <>
                                 <div className="file-info">
                                     <h4>{selectedFile?.name}</h4>
-                                    <p>{(selectedFile?.size / 1024).toFixed(1)} KB</p>
+                                    <p>{(selectedFile?.size / 1024 / 1024).toFixed(2)} MB</p>
                                 </div>
-
                                 <div className="setting-group">
                                     <label>Compression Type</label>
                                     <div className="segmented-control">
-                                        <button className={!lossless ? 'active' : ''} onClick={() => setLossless(false)}>Lossy</button>
-                                        <button className={lossless ? 'active' : ''} onClick={() => setLossless(true)}>Lossless</button>
+                                        <button className={!lossless ? 'active' : ''} onClick={() => setLossless(false)} disabled={isJpg} style={{ cursor: isJpg ? 'not-allowed' : 'pointer', opacity: isJpg ? 0.6 : 1 }}>Lossy</button>
+                                        <button className={lossless ? 'active' : ''} onClick={() => setLossless(true)} disabled={isJpg} style={{ cursor: isJpg ? 'not-allowed' : 'pointer', opacity: isJpg ? 0.6 : 1 }}>Lossless</button>
                                     </div>
+                                    {isJpg && <p style={{ fontSize: '0.8rem', color: '#b0b0b0', marginTop: '8px', textAlign: 'center' }}>JPEG files are automatically processed in Lossless mode.</p>}
                                 </div>
-
                                 <AnimatePresence>
                                     {!lossless && (
                                         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}>
                                             <div className="setting-group">
-                                                {/* DEĞİŞİKLİK: Quality kaydırıcısını güncelledik */}
                                                 <div className="quality-label-container">
                                                     <label htmlFor="quality">Quality</label>
                                                     <span>{quality}%</span>
                                                 </div>
                                                 <div className="quality-slider-container">
-                                                    <input
-                                                        type="range"
-                                                        id="quality"
-                                                        min="0"
-                                                        max="100"
-                                                        step="1"
-                                                        value={quality}
-                                                        onChange={(e) => setQuality(parseInt(e.target.value))}
-                                                        className="quality-slider"
-                                                        style={{ '--value': `${quality}%` }}
-                                                    />
+                                                    <input type="range" id="quality" min="0" max="100" step="1" value={quality} onChange={(e) => setQuality(parseInt(e.target.value))} className="quality-slider" style={{ '--value': `${quality}%` }} />
                                                 </div>
                                             </div>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
-
                                 <div className="advanced-settings">
                                     <button className="advanced-toggle" onClick={() => setShowAdvanced(!showAdvanced)}>
                                         <SettingsIcon />
@@ -185,28 +263,17 @@ function ImageCompressor() {
                                                 </div>
                                                 {isJpg && (
                                                     <div className="setting-group-checkbox">
-                                                        <input type="checkbox" id="jpegReconstruction" checked={jpegReconstruction} onChange={(e) => setJpegReconstruction(e.target.checked)} />
-                                                        <label htmlFor="jpegReconstruction">Lossless JPEG Reconstruction Data</label>
+                                                        <input type="checkbox" id="jpegReconstruction" checked={true} disabled={true} />
+                                                        <label htmlFor="jpegReconstruction" style={{ opacity: 0.7 }}>Lossless JPEG Reconstruction Data</label>
                                                     </div>
                                                 )}
-                                                <div className="setting-group">
-                                                    <label htmlFor="colorTransform">Color Space Transform</label>
-                                                    <select id="colorTransform" className="dropdown" value={colorTransform} onChange={(e) => setColorTransform(parseInt(e.target.value))}>
-                                                        <option value="0">XYB (Best Quality)</option>
-                                                        <option value="2">YCbCr (JPEG-like)</option>
-                                                        <option value="1">None (for specific use cases)</option>
-                                                    </select>
-                                                </div>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
                                 </div>
-
                                 {error && <p className="error-text">{error}</p>}
-                                <button className="action-button" onClick={handleCompress} disabled={step === 'processing'}>
-                                    {step === 'processing' ? 'Processing...' : 'Compress'}
-                                </button>
-                                <button className="secondary-button" onClick={resetState} disabled={step === 'processing'}>Cancel</button>
+                                <button className="action-button" onClick={handleCompress} disabled={step === 'processing' || isPreviewLoading}>{isPreviewLoading ? 'Loading Preview...' : 'Compress'}</button>
+                                <button className="secondary-button" onClick={resetState} disabled={step === 'processing' || isPreviewLoading}>Cancel</button>
                             </>
                         )}
                         {step === 'result' && result && (
@@ -216,20 +283,16 @@ function ImageCompressor() {
                                 <div className="result-summary">
                                     <div className="size-item">
                                         <span>ORIGINAL</span>
-                                        <strong>{(result.originalSize / 1024).toFixed(1)} KB</strong>
+                                        <strong>{(result.originalSize / 1024 / 1024).toFixed(2)} MB</strong>
                                     </div>
                                     <div className="arrow-icon"><ArrowDownIcon /></div>
                                     <div className="size-item new-size">
                                         <span>NEW SIZE</span>
-                                        <strong>{(result.newSize / 1024).toFixed(1)} KB</strong>
+                                        <strong>{(result.newSize / 1024 / 1024).toFixed(2)} MB</strong>
                                     </div>
                                 </div>
-                                <div className="reduction-badge">
-                                    {result.reductionPercentage}% Saved
-                                </div>
-                                <a href={result.downloadUrl} download={result.newFileName} className="action-button download-button">
-                                    Download
-                                </a>
+                                <div className="reduction-badge">{result.reductionPercentage}% Saved</div>
+                                <a href={result.downloadUrl} download={result.newFileName} className="action-button download-button">Download</a>
                                 <button className="secondary-button" onClick={resetState}>Compress Another File</button>
                             </div>
                         )}

@@ -1,7 +1,12 @@
 using jxl_converter.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MinRequestBodyDataRate = null;
 
+    serverOptions.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(10);
+});
 builder.Services.AddControllers();
 
 

@@ -23,7 +23,6 @@ namespace jxl_converter.Server.Models
         [FromForm(Name = "JpegReconstruction")]
         public bool JpegReconstruction { get; set; }
 
-        [FromForm(Name = "ColorTransform")]
-        public int ColorTransform { get; set; }
+
     }
 }
