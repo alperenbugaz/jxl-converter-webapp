@@ -11,6 +11,7 @@ builder.Services.AddControllers();
 
 
 builder.Services.AddSingleton<TempFileStorageService>();
+builder.Services.AddScoped<ICompressService, CompressService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
